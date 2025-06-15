@@ -1,0 +1,206 @@
+---
+title: Creating Custom Effects
+description: Learn how to create and implement custom effects for your glTF models
+nav: 3
+---
+
+# Creating Custom Effects
+
+The effectable-gltf library is designed to be extensible, allowing you to create your own custom effects. This guide will walk you through the process of creating and implementing custom effects.
+
+## Effect Architecture
+
+Custom effects in effectable-gltf are built using React components and Three.js materials. Each effect consists of two main parts:
+
+1. A React component that defines the effect's props and behavior
+2. A Three.js material or post-processing effect that implements the visual changes
+
+## Basic Effect Structure
+
+Here's a basic template for creating a custom effect:
+
+```tsx
+import { Effect } from "@vantezzen/effectable-gltf";
+import { useMemo } from "react";
+import * as THREE from "three";
+
+interface MyCustomEffectProps {
+  // Define your effect's props here
+  intensity?: number;
+  color?: string;
+}
+
+export function MyCustomEffect({
+  intensity = 1,
+  color = "white",
+}: MyCustomEffectProps) {
+  const material = useMemo(() => {
+    // Create and configure your Three.js material here
+    return new THREE.MeshBasicMaterial({
+      color: new THREE.Color(color),
+      transparent: true,
+      opacity: intensity,
+    });
+  }, [color, intensity]);
+
+  return <Effect material={material} />;
+}
+```
+
+## Creating a Simple Color Shift Effect
+
+Let's create a practical example - a color shift effect that modifies the hue of the model:
+
+```tsx
+import { Effect } from "@vantezzen/effectable-gltf";
+import { useMemo } from "react";
+import * as THREE from "three";
+
+interface ColorShiftProps {
+  hueShift?: number; // in degrees
+  saturation?: number; // 0-1
+}
+
+export function ColorShift({ hueShift = 0, saturation = 1 }: ColorShiftProps) {
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        hueShift: { value: hueShift },
+        saturation: { value: saturation },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float hueShift;
+        uniform float saturation;
+        varying vec2 vUv;
+        
+        vec3 rgb2hsv(vec3 c) {
+          vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+          vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+          vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+          float d = q.x - min(q.w, q.y);
+          float e = 1.0e-10;
+          return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+        }
+
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+
+        void main() {
+          vec4 color = texture2D(map, vUv);
+          vec3 hsv = rgb2hsv(color.rgb);
+          hsv.x = mod(hsv.x + hueShift / 360.0, 1.0);
+          hsv.y *= saturation;
+          gl_FragColor = vec4(hsv2rgb(hsv), color.a);
+        }
+      `,
+    });
+  }, [hueShift, saturation]);
+
+  return <Effect material={material} />;
+}
+```
+
+## Using Your Custom Effect
+
+Once you've created your custom effect, you can use it just like the built-in effects:
+
+```tsx
+import { EffectableGltf } from "@vantezzen/effectable-gltf";
+import { ColorShift } from "./ColorShift";
+
+function MyScene() {
+  return (
+    <EffectableGltf src="/path/to/model.gltf">
+      <ColorShift hueShift={45} saturation={1.2} />
+    </EffectableGltf>
+  );
+}
+```
+
+## Best Practices for Custom Effects
+
+1. **Performance**
+
+   - Use `useMemo` for material creation
+   - Keep shader code optimized
+   - Consider using shared materials when possible
+
+2. **TypeScript**
+
+   - Define proper types for all props
+   - Use interfaces for effect props
+   - Document prop types and defaults
+
+3. **Shader Development**
+
+   - Test shaders with different model types
+   - Handle edge cases (transparency, etc.)
+   - Consider mobile performance
+
+4. **Effect Composition**
+   - Design effects to work well with other effects
+   - Consider the order of effect application
+   - Handle cleanup properly
+
+## Advanced Topics
+
+### Post-Processing Effects
+
+For more complex effects, you can use Three.js post-processing:
+
+```tsx
+import { Effect } from "@vantezzen/effectable-gltf";
+import { useMemo } from "react";
+import { EffectComposer, BloomEffect } from "postprocessing";
+
+function BloomEffect({ intensity = 1 }) {
+  const effect = useMemo(() => {
+    return new BloomEffect({
+      intensity,
+      luminanceThreshold: 0.9,
+      luminanceSmoothing: 0.025,
+    });
+  }, [intensity]);
+
+  return <Effect postProcessing={effect} />;
+}
+```
+
+### State Management
+
+For effects that need to respond to state changes:
+
+```tsx
+function AnimatedEffect({ speed = 1 }) {
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+      },
+      // ... shader code
+    });
+  }, []);
+
+  useFrame((state) => {
+    material.uniforms.time.value = state.clock.elapsedTime * speed;
+  });
+
+  return <Effect material={material} />;
+}
+```
+
+## Next Steps
+
+- Explore the [API Reference](/docs/api-reference) for more details
+- Check out [Advanced Usage](/docs/advanced-usage) for more complex examples
+- Look at the [Built-in Effects](/docs/built-in-effects) for implementation examples

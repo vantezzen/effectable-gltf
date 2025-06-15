@@ -1,0 +1,278 @@
+---
+title: Advanced Usage
+description: Advanced patterns and techniques for using effectable-gltf
+nav: 5
+---
+
+# Advanced Usage
+
+This guide covers advanced usage patterns and techniques for effectable-gltf.
+
+## Effect Composition
+
+### Combining Multiple Effects
+
+You can combine multiple effects in different ways:
+
+```tsx
+function MyScene() {
+  return (
+    <EffectableGltf src="/model.gltf">
+      {/* Effects are applied in order */}
+      <Overlay color="red" opacity={0.3} />
+      <Outline color="blue" thickness={0.02} />
+      <CustomEffect />
+    </EffectableGltf>
+  );
+}
+```
+
+### Conditional Effects
+
+Apply effects conditionally based on state:
+
+```tsx
+function MyScene() {
+  const [isSelected, setIsSelected] = useState(false);
+  const [isHighlighted, setIsHighlighted] = useState(false);
+
+  return (
+    <EffectableGltf src="/model.gltf">
+      {isSelected && <Outline color="yellow" />}
+      {isHighlighted && <Overlay color="blue" opacity={0.2} />}
+    </EffectableGltf>
+  );
+}
+```
+
+## Performance Optimization
+
+### Material Sharing
+
+Share materials between effects to improve performance:
+
+```tsx
+function MyScene() {
+  const sharedMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      // ... material configuration
+    });
+  }, []);
+
+  return (
+    <>
+      <EffectableGltf src="/model1.gltf">
+        <Effect material={sharedMaterial} />
+      </EffectableGltf>
+      <EffectableGltf src="/model2.gltf">
+        <Effect material={sharedMaterial} />
+      </EffectableGltf>
+    </>
+  );
+}
+```
+
+### Effect Caching
+
+Cache effects to prevent unnecessary re-renders:
+
+```tsx
+const CachedEffect = memo(function CachedEffect({ color, opacity }) {
+  return <Overlay color={color} opacity={opacity} />;
+});
+```
+
+## Advanced Effects
+
+### Custom Shader Effects
+
+Create complex effects using custom shaders:
+
+```tsx
+function DistortionEffect({ intensity = 1 }) {
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        intensity: { value: intensity },
+        time: { value: 0 },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float intensity;
+        uniform float time;
+        varying vec2 vUv;
+        
+        void main() {
+          vec2 distortedUv = vUv + sin(vUv * 10.0 + time) * intensity;
+          gl_FragColor = texture2D(map, distortedUv);
+        }
+      `,
+    });
+  }, [intensity]);
+
+  useFrame((state) => {
+    material.uniforms.time.value = state.clock.elapsedTime;
+  });
+
+  return <Effect material={material} />;
+}
+```
+
+### Post-Processing Effects
+
+Combine with Three.js post-processing:
+
+```tsx
+function BloomEffect({ intensity = 1 }) {
+  const effect = useMemo(() => {
+    return new EffectComposer({
+      effects: [
+        new BloomEffect({
+          intensity,
+          luminanceThreshold: 0.9,
+          luminanceSmoothing: 0.025,
+        }),
+      ],
+    });
+  }, [intensity]);
+
+  return <Effect postProcessing={effect} />;
+}
+```
+
+## State Management
+
+### Context Integration
+
+Use with React context for global state:
+
+```tsx
+const EffectContext = createContext();
+
+function EffectProvider({ children }) {
+  const [activeEffects, setActiveEffects] = useState([]);
+
+  return (
+    <EffectContext.Provider value={{ activeEffects, setActiveEffects }}>
+      {children}
+    </EffectContext.Provider>
+  );
+}
+
+function ModelWithEffects() {
+  const { activeEffects } = useContext(EffectContext);
+
+  return (
+    <EffectableGltf src="/model.gltf">
+      {activeEffects.map((effect) => (
+        <Effect key={effect.id} {...effect.props} />
+      ))}
+    </EffectableGltf>
+  );
+}
+```
+
+### Animation Integration
+
+Animate effects using React Spring:
+
+```tsx
+function AnimatedOverlay() {
+  const [isActive, setIsActive] = useState(false);
+  const { opacity } = useSpring({
+    opacity: isActive ? 0.5 : 0,
+    config: { tension: 300, friction: 20 },
+  });
+
+  return (
+    <animated.div>
+      <Overlay opacity={opacity} color="red" />
+    </animated.div>
+  );
+}
+```
+
+## Error Handling
+
+### Custom Error Boundaries
+
+Create custom error boundaries for effects:
+
+```tsx
+class EffectErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <FallbackEffect />;
+    }
+    return this.props.children;
+  }
+}
+
+function SafeEffect() {
+  return (
+    <EffectErrorBoundary>
+      <CustomEffect />
+    </EffectErrorBoundary>
+  );
+}
+```
+
+## Testing
+
+### Unit Testing Effects
+
+Test effects using React Testing Library:
+
+```tsx
+import { render, screen } from "@testing-library/react";
+import { EffectableGltf, Overlay } from "@vantezzen/effectable-gltf";
+
+test("Overlay effect applies correctly", () => {
+  render(
+    <EffectableGltf src="/model.gltf">
+      <Overlay color="red" opacity={0.5} />
+    </EffectableGltf>
+  );
+
+  // Add your assertions here
+});
+```
+
+### Performance Testing
+
+Measure effect performance:
+
+```tsx
+function PerformanceMonitor() {
+  const { model, effects } = useEffectableGltf();
+
+  useEffect(() => {
+    const stats = new Stats();
+    document.body.appendChild(stats.dom);
+
+    return () => {
+      document.body.removeChild(stats.dom);
+    };
+  }, []);
+
+  return null;
+}
+```
+
+## Next Steps
+
+- Explore the [API Reference](/docs/api-reference) for more details
+- Check out [Creating Custom Effects](/docs/custom-effects) for more examples
+- Look at the [Built-in Effects](/docs/built-in-effects) for implementation details

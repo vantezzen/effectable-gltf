@@ -1,0 +1,18 @@
+uses: pmndrs/docs/.github/workflows/build.yml@v2
+  with:
+    mdx: 'docs'
+    libname: 'Effectable Gltf'
+    libname_short: 'egltf'
+    libname_dotsuffix_label: "effectable-gltf"
+    libname_dotsuffix_href: "https://vantezzen.github.io/effectable-gltf"
+    home_redirect: '/introduction'
+    icon: '🌟'
+    github: 'https://github.com/vantezzen/effectable-gltf'
+    theme_primary: '#323e48'
+    theme_scheme: 'tonalSpot'
+    theme_contrast: '0'
+    theme_note: '#1f6feb'
+    theme_tip: '#238636'
+    theme_important: '#8957e5'
+    theme_warning: '#d29922'
+    theme_caution: '#da3633'
