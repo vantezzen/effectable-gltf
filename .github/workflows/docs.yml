@@ -1,18 +1,46 @@
-uses: pmndrs/docs/.github/workflows/build.yml@v2
-  with:
-    mdx: 'docs'
-    libname: 'Effectable Gltf'
-    libname_short: 'egltf'
-    libname_dotsuffix_label: "effectable-gltf"
-    libname_dotsuffix_href: "https://vantezzen.github.io/effectable-gltf"
-    home_redirect: '/introduction'
-    icon: '🌟'
-    github: 'https://github.com/vantezzen/effectable-gltf'
-    theme_primary: '#323e48'
-    theme_scheme: 'tonalSpot'
-    theme_contrast: '0'
-    theme_note: '#1f6feb'
-    theme_tip: '#238636'
-    theme_important: '#8957e5'
-    theme_warning: '#d29922'
-    theme_caution: '#da3633'
+name: Build documentation and deploy to GitHub Pages
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: pmndrs/docs/.github/workflows/build.yml@v2
+    with:
+      mdx: "docs"
+      libname: "Effectable Gltf"
+      libname_short: "egltf"
+      libname_dotsuffix_label: "effectable-gltf"
+      libname_dotsuffix_href: "https://vantezzen.github.io/effectable-gltf"
+      home_redirect: "/introduction"
+      icon: "🌟"
+      github: "https://github.com/vantezzen/effectable-gltf"
+      theme_primary: "#323e48"
+      theme_scheme: "tonalSpot"
+      theme_contrast: "0"
+      theme_note: "#1f6feb"
+      theme_tip: "#238636"
+      theme_important: "#8957e5"
+      theme_warning: "#d29922"
+      theme_caution: "#da3633"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
