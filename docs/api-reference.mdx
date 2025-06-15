@@ -4,8 +4,6 @@ description: Complete API reference for effectable-gltf
 nav: 4
 ---
 
-# API Reference
-
 ## Components
 
 ### EffectableGltf
@@ -25,147 +23,94 @@ import { EffectableGltf } from "@vantezzen/effectable-gltf";
 
 #### Children
 
-- Effects components (Overlay, Outline, or custom effects)
+- Effect components (OverlayEffect, OutlineEffect)
 
-### Effect
-
-Base component for creating custom effects.
-
-```tsx
-import { Effect } from "@vantezzen/effectable-gltf";
-```
-
-#### Props
-
-| Prop           | Type           | Default | Description                             |
-| -------------- | -------------- | ------- | --------------------------------------- |
-| material       | THREE.Material | -       | Three.js material to apply to the model |
-| postProcessing | Effect         | -       | Post-processing effect to apply         |
-
-## Built-in Effects
-
-### Overlay
+### OverlayEffect
 
 Adds a color overlay to the model.
 
 ```tsx
-import { Overlay } from "@vantezzen/effectable-gltf";
+import { OverlayEffect } from "@vantezzen/effectable-gltf";
 ```
 
 #### Props
 
-| Prop    | Type   | Default | Description                                |
-| ------- | ------ | ------- | ------------------------------------------ |
-| color   | string | 'red'   | Color of the overlay (any valid CSS color) |
-| opacity | number | 0.5     | Opacity of the overlay (0-1)               |
+| Prop    | Type                | Default  | Description                                     |
+| ------- | ------------------- | -------- | ----------------------------------------------- |
+| color   | ColorRepresentation | required | Color of the overlay (any valid Three.js color) |
+| opacity | number              | 0.5      | Opacity of the overlay (0-1)                    |
 
-### Outline
+### OutlineEffect
 
 Adds a cartoon-style outline to the model.
 
 ```tsx
-import { Outline } from "@vantezzen/effectable-gltf";
+import { OutlineEffect } from "@vantezzen/effectable-gltf";
 ```
 
 #### Props
 
-| Prop      | Type   | Default | Description              |
-| --------- | ------ | ------- | ------------------------ |
-| color     | string | 'black' | Color of the outline     |
-| thickness | number | 0.01    | Thickness of the outline |
-| opacity   | number | 1       | Opacity of the outline   |
-
-## Types
-
-### EffectProps
-
-Base interface for effect props.
-
-```tsx
-interface EffectProps {
-  material?: THREE.Material;
-  postProcessing?: Effect;
-}
-```
-
-### EffectableGltfProps
-
-Props for the EffectableGltf component.
-
-```tsx
-interface EffectableGltfProps extends GltfProps {
-  src: string;
-}
-```
+| Prop       | Type                | Default | Description                                |
+| ---------- | ------------------- | ------- | ------------------------------------------ |
+| color      | ColorRepresentation | 'black' | Color of the outline                       |
+| resolution | number              | 1000    | Resolution of the outline effect in pixels |
+| strength   | number              | 2       | Strength of the outline                    |
+| blur       | boolean             | false   | Whether to apply blur to the outline       |
 
 ## Hooks
 
-### useEffectableGltf
+### useEffectData
 
 Hook for accessing the effectable-gltf context.
 
 ```tsx
-import { useEffectableGltf } from "@vantezzen/effectable-gltf";
+import { useEffectData } from "@vantezzen/effectable-gltf";
 
 function MyComponent() {
-  const { model, effects } = useEffectableGltf();
+  const { root, meshes } = useEffectData();
   // ...
 }
 ```
 
 #### Returns
 
-| Property | Type        | Description             |
-| -------- | ----------- | ----------------------- |
-| model    | THREE.Group | The loaded glTF model   |
-| effects  | Effect[]    | Array of active effects |
+| Property | Type             | Description                              |
+| -------- | ---------------- | ---------------------------------------- |
+| root     | MutableRefObject | Reference to the root group of the model |
+| meshes   | Mesh[]           | Array of meshes in the model             |
 
-## Utilities
+## Types
 
-### createEffect
+### EffectableGltfProps
 
-Utility function for creating custom effects.
+Props for the EffectableGltf component.
 
 ```tsx
-import { createEffect } from "@vantezzen/effectable-gltf";
-
-const MyEffect = createEffect((props) => {
-  // Effect implementation
-});
+interface EffectableGltfProps extends Omit<GltfProps, "children"> {
+  src: string;
+  children?: ReactNode;
+}
 ```
-
-#### Parameters
-
-| Parameter      | Type                          | Description                         |
-| -------------- | ----------------------------- | ----------------------------------- |
-| implementation | (props: P) => React.ReactNode | Function that implements the effect |
-
-#### Returns
-
-- React component that can be used as an effect
 
 ## Error Handling
 
-The library provides error boundaries and error handling for common issues:
+The library provides error handling for common issues:
 
 - Model loading failures
 - Effect application errors
-- Shader compilation errors
 
 ## Performance Considerations
 
 ### Memory Management
 
 - Effects are automatically cleaned up when components unmount
-- Materials are shared when possible
-- Post-processing effects are properly disposed
+- Materials are properly disposed
 
 ### Optimization Tips
 
-1. Use `useMemo` for material creation
-2. Keep shader code optimized
-3. Consider using shared materials
-4. Monitor effect count and complexity
+1. Use the outline effect sparingly as it uses post-processing
+2. Adjust the outline resolution based on your needs
+3. Keep overlay opacity below 1 to maintain visibility
 
 ## Browser Support
 
@@ -182,6 +127,5 @@ The library is written in TypeScript and provides full type definitions for:
 
 - All components
 - Props interfaces
-- Utility functions
 - Hooks
 - Context types

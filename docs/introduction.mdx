@@ -1,26 +1,29 @@
 ---
 title: Introduction
-description: A powerful and extensible effects system for glTF models in React Three Fiber
+description: An extensible effects system for glTF models in React Three Fiber
 nav: 0
 ---
 
 <Intro>
-  effectable-gltf is a powerful library that extends the capabilities of React
-  Three Fiber's glTF handling by adding an extensible effects system. It
-  provides a drop-in replacement for the `Gltf` component from
-  `@react-three/drei` while adding the ability to apply various visual effects
-  to your 3D models.
+  An extensible effects system for adding visual effects to glTF models in React
+  Three Fiber.
 </Intro>
 
 ## What is effectable-gltf?
 
-effectable-gltf is designed to make it easy to add visual effects to your glTF models in React Three Fiber applications. Whether you need to highlight objects, add outlines, or create custom effects, this library provides a simple and intuitive API to achieve your goals.
+effectable-gltf is designed to make it easy to add visual effects to your glTF models in React Three Fiber applications. It provides a component `ExtensibleGltf` that acts as a drop-in replacement for drei's `Gltf` component.
+
+It provides two built-in effects:
+
+1. **Overlay Effect**: Adds a color overlay to your model with customizable opacity
+2. **Outline Effect**: Adds a cartoon-style outline to your model
+
+You can create your own component, hooking into the Gltf meshes.
 
 ## Key Features
 
 - **Drop-in Replacement**: Seamlessly replace `@react-three/drei`'s `Gltf` component with `EffectableGltf`
-- **Built-in Effects**: Start with pre-built effects like `Overlay` and `Outline`
-- **Extensible**: Create your own custom effects using the provided architecture
+- **Built-in Effects**: Pre-built effects for common use cases
 - **TypeScript Support**: Full type safety and autocompletion
 - **React Three Fiber Integration**: Built on top of the powerful React Three Fiber ecosystem
 
@@ -32,5 +35,4 @@ To get started with effectable-gltf, check out the [Installation](./installation
 
 - **Simple API**: Apply effects with a familiar React component-based approach
 - **Performance**: Optimized for React Three Fiber's rendering pipeline
-- **Flexibility**: Mix and match effects or create your own
 - **Maintainable**: Well-structured codebase with TypeScript support

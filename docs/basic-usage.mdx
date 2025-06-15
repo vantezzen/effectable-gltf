@@ -4,8 +4,6 @@ description: Learn how to use effectable-gltf in your React Three Fiber applicat
 nav: 2
 ---
 
-# Basic Usage
-
 ## The EffectableGltf Component
 
 The `EffectableGltf` component is a drop-in replacement for `@react-three/drei`'s `Gltf` component. It accepts all the same props as the original component, plus the ability to add effects as children.
@@ -22,19 +20,19 @@ function MyScene() {
 
 ## Adding Effects
 
-Effects are added as children to the `EffectableGltf` component. You can add multiple effects, and they will be applied in the order they are specified.
+Effects are added as children to the `EffectableGltf` component. You can add both effects to the same model, and they will be applied in the order they are specified.
 
 ### Overlay Effect
 
-The `Overlay` effect adds a color overlay to your model with customizable opacity:
+The `OverlayEffect` adds a color overlay to your model with customizable opacity:
 
 ```tsx
-import { EffectableGltf, Overlay } from "@vantezzen/effectable-gltf";
+import { EffectableGltf, OverlayEffect } from "@vantezzen/effectable-gltf";
 
 function MyScene() {
   return (
     <EffectableGltf src="/path/to/model.gltf">
-      <Overlay color="red" opacity={0.5} />
+      <OverlayEffect color="red" opacity={0.5} />
     </EffectableGltf>
   );
 }
@@ -42,15 +40,15 @@ function MyScene() {
 
 ### Outline Effect
 
-The `Outline` effect adds a cartoon-style outline to your model:
+The `OutlineEffect` adds a cartoon-style outline to your model:
 
 ```tsx
-import { EffectableGltf, Outline } from "@vantezzen/effectable-gltf";
+import { EffectableGltf, OutlineEffect } from "@vantezzen/effectable-gltf";
 
 function MyScene() {
   return (
     <EffectableGltf src="/path/to/model.gltf">
-      <Outline />
+      <OutlineEffect color="black" />
     </EffectableGltf>
   );
 }
@@ -58,16 +56,20 @@ function MyScene() {
 
 ### Combining Effects
 
-You can combine multiple effects on the same model:
+You can combine both effects on the same model:
 
 ```tsx
-import { EffectableGltf, Overlay, Outline } from "@vantezzen/effectable-gltf";
+import {
+  EffectableGltf,
+  OverlayEffect,
+  OutlineEffect,
+} from "@vantezzen/effectable-gltf";
 
 function MyScene() {
   return (
     <EffectableGltf src="/path/to/model.gltf">
-      <Overlay color="red" opacity={0.5} />
-      <Outline />
+      <OverlayEffect color="red" opacity={0.5} />
+      <OutlineEffect color="black" />
     </EffectableGltf>
   );
 }
@@ -75,29 +77,28 @@ function MyScene() {
 
 ## Effect Props
 
-### Overlay Props
+### OverlayEffect Props
 
-| Prop    | Type   | Default | Description                                    |
-| ------- | ------ | ------- | ---------------------------------------------- |
-| color   | string | 'red'   | The color of the overlay (any valid CSS color) |
-| opacity | number | 0.5     | The opacity of the overlay (0-1)               |
+| Prop    | Type                | Default  | Description                                         |
+| ------- | ------------------- | -------- | --------------------------------------------------- |
+| color   | ColorRepresentation | required | The color of the overlay (any valid Three.js color) |
+| opacity | number              | 0.5      | The opacity of the overlay (0-1)                    |
 
-### Outline Props
+### OutlineEffect Props
 
-| Prop      | Type   | Default | Description                  |
-| --------- | ------ | ------- | ---------------------------- |
-| color     | string | 'black' | The color of the outline     |
-| thickness | number | 0.01    | The thickness of the outline |
-| opacity   | number | 1       | The opacity of the outline   |
+| Prop       | Type                | Default | Description                                    |
+| ---------- | ------------------- | ------- | ---------------------------------------------- |
+| color      | ColorRepresentation | 'black' | The color of the outline                       |
+| resolution | number              | 1000    | The resolution of the outline effect in pixels |
+| strength   | number              | 2       | The strength of the outline                    |
+| blur       | boolean             | false   | Whether to apply blur to the outline           |
 
 ## Best Practices
 
-1. **Performance**: Effects are applied in order, so consider the performance impact of multiple effects
-2. **Opacity**: When using the `Overlay` effect, keep the opacity below 1 to maintain visibility of the original model
-3. **Outline Thickness**: Adjust the outline thickness based on your model's scale and camera distance
+1. **Performance**: The outline effect uses post-processing, so use it sparingly
+2. **Opacity**: When using the `OverlayEffect`, keep the opacity below 1 to maintain visibility of the original model
+3. **Outline Resolution**: Adjust the outline resolution based on your needs - higher values look better but impact performance
 
 ## Next Steps
 
-- Learn about [Creating Custom Effects](./custom-effects)
-- Explore [Advanced Usage](./advanced-usage)
-- Check out the [API Reference](./api-reference)
+- Check out the [API Reference](./api-reference) for more details

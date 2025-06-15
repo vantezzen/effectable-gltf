@@ -4,15 +4,21 @@ description: How to install and set up effectable-gltf
 nav: 1
 ---
 
-# Installation
-
 ## Prerequisites
 
 Before installing effectable-gltf, make sure you have the following dependencies in your project:
 
 - React (16.8 or higher)
-- React Three Fiber
-- Three.js
+- `@react-three/fiber`
+- `@react-three/drei`
+- `@react-three/postprocessing`
+- `three`
+
+You can install them via
+
+```
+npm i @react-three/fiber @react-three/drei @react-three/postprocessing
+```
 
 ## Package Installation
 
@@ -20,29 +26,13 @@ You can install effectable-gltf using your preferred package manager:
 
 ```bash
 # Using npm
-npm install effectable-gltf
+npm install @vantezzen/effectable-gltf
 
 # Using yarn
-yarn add effectable-gltf
+yarn add @vantezzen/effectable-gltf
 
 # Using pnpm
-pnpm add effectable-gltf
-```
-
-## Peer Dependencies
-
-effectable-gltf requires the following peer dependencies:
-
-```json
-{
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
-    "@react-three/fiber": ">=8.0.0",
-    "@react-three/drei": ">=9.0.0",
-    "three": ">=0.150.0"
-  }
-}
+pnpm add @vantezzen/effectable-gltf
 ```
 
 ## TypeScript Support
