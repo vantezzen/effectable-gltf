@@ -1,7 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { EffectableGltf } from "./lib/EffectableGltf";
-import { OutlineEffect } from "./lib/OutlineEffect";
-import { OverlayEffect } from "./lib/OverlayEffect";
+import { EffectableGltf } from "../lib/EffectableGltf";
+import { OutlineEffect } from "../lib/OutlineEffect";
+import { OverlayEffect } from "../lib/OverlayEffect";
 import { CameraControls } from "@react-three/drei";
 import { useState } from "react";
 

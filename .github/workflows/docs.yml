@@ -15,7 +15,6 @@ jobs:
       mdx: "docs"
       libname: "Effectable Gltf"
       libname_short: "egltf"
-      libname_dotsuffix_label: "effectable-gltf"
       libname_dotsuffix_href: "https://vantezzen.github.io/effectable-gltf"
       home_redirect: "/introduction"
       icon: "🌟"
