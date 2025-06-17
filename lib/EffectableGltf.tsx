@@ -34,7 +34,19 @@ export const EffectableGltf: FC<EffectableGltfProps> = ({
   ...rest
 }) => {
   const root = useRef<Group>(null);
-  const { scene } = useGLTF(src);
+  const { scene: originalScene } = useGLTF(src);
+
+  // Clone the scene for this instance
+  const scene = useMemo(() => {
+    const clonedScene = originalScene.clone();
+    // Ensure all materials are cloned as well
+    clonedScene.traverse((object) => {
+      if (object instanceof Mesh && object.material) {
+        object.material = object.material.clone();
+      }
+    });
+    return clonedScene;
+  }, [originalScene]);
 
   const meshes = useMemo<Mesh[]>(() => {
     const out: Mesh[] = [];

@@ -3,11 +3,13 @@ import { EffectableGltf } from "../lib/EffectableGltf";
 import { OutlineEffect } from "../lib/OutlineEffect";
 import { OverlayEffect } from "../lib/OverlayEffect";
 import { CameraControls } from "@react-three/drei";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function AppCanvas() {
   const [overlayOpacity, setOverlayOpacity] = useState(0.3);
   const [isAscending, setIsAscending] = useState(true);
+
+  const [showEffects, setShowEffects] = useState(true);
 
   useFrame(() => {
     setOverlayOpacity((prev) => {
@@ -27,6 +29,13 @@ function AppCanvas() {
     });
   });
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowEffects((prev) => !prev);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <ambientLight intensity={0.6} />
@@ -40,8 +49,22 @@ function AppCanvas() {
           "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/bench-2/model.gltf"
         }
       >
+        {showEffects && (
+          <>
+            <OutlineEffect color="#0000FF" />
+            <OverlayEffect color="red" opacity={overlayOpacity} />
+          </>
+        )}
+      </EffectableGltf>
+
+      <EffectableGltf
+        src={
+          "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/bench-2/model.gltf"
+        }
+        position={[0, 0, -2]}
+      >
         <OutlineEffect color="#0000FF" />
-        <OverlayEffect color="red" opacity={overlayOpacity} />
+        <OverlayEffect color="red" opacity={1 - overlayOpacity} />
       </EffectableGltf>
     </>
   );

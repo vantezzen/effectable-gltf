@@ -1,6 +1,6 @@
 {
   "name": "@vantezzen/effectable-gltf",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "main": "dist/effectable-gltf.js",
   "types": "dist/index.d.ts",

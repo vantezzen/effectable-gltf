@@ -28,6 +28,120 @@ export const MyCustomEffect: FC<MyCustomEffectProps> = ({ someProp }) => {
 };
 ```
 
+## Proper Cleanup and Unmounting
+
+When creating effects, it's crucial to properly clean up resources when the effect is unmounted. This prevents memory leaks and ensures your effect doesn't leave any lingering changes to the model. Here are the key points to consider:
+
+### 1. Using useEffect for Cleanup
+
+Always use the cleanup function returned by `useEffect` to handle unmounting:
+
+```tsx
+useEffect(() => {
+  // Setup code here
+
+  return () => {
+    // Cleanup code here
+  };
+}, [dependencies]);
+```
+
+### 2. What to Clean Up
+
+Common resources that need cleanup include:
+
+- **Materials**: Dispose of any custom materials you created
+- **Geometries**: Dispose of any custom geometries
+- **Textures**: Dispose of any loaded textures
+- **Event Listeners**: Remove any event listeners
+- **Animations**: Cancel any ongoing animations
+
+### 3. Example of Proper Cleanup
+
+Here's an example of an effect that properly cleans up after itself:
+
+```tsx
+import { type FC, useEffect, useRef } from "react";
+import { useEffectData } from "effectable-gltf";
+import { MeshStandardMaterial, TextureLoader } from "three";
+
+export const TextureEffect: FC<{ textureUrl: string }> = ({ textureUrl }) => {
+  const { meshes } = useEffectData();
+  const materialsRef = useRef<MeshStandardMaterial[]>([]);
+  const originalMaterialsRef = useRef<THREE.Material[]>([]);
+  const textureRef = useRef<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    // Store original materials
+    originalMaterialsRef.current = meshes.map((mesh) => mesh.material);
+
+    // Load and apply texture
+    const loader = new TextureLoader();
+    textureRef.current = loader.load(textureUrl);
+
+    // Create and apply new materials
+    materialsRef.current = meshes.map((mesh) => {
+      const material = new MeshStandardMaterial();
+      material.map = textureRef.current;
+      mesh.material = material;
+      return material;
+    });
+
+    // Cleanup function
+    return () => {
+      // Restore original materials
+      meshes.forEach((mesh, i) => {
+        mesh.material = originalMaterialsRef.current[i];
+      });
+
+      // Dispose of created materials
+      materialsRef.current.forEach((material) => {
+        material.dispose();
+      });
+      materialsRef.current = [];
+
+      // Dispose of texture
+      if (textureRef.current) {
+        textureRef.current.dispose();
+        textureRef.current = null;
+      }
+    };
+  }, [meshes, textureUrl]);
+
+  return null;
+};
+```
+
+### 4. React Component Effects
+
+If your effect uses React components (like from @react-three/postprocessing), let React handle the cleanup:
+
+```tsx
+import { type FC } from "react";
+import { EffectComposer, Outline } from "@react-three/postprocessing";
+import { useEffectData } from "effectable-gltf";
+
+export const OutlineEffect: FC<{ color: string }> = ({ color }) => {
+  const { meshes } = useEffectData();
+
+  if (!meshes.length) return null;
+
+  return (
+    <EffectComposer autoClear={false}>
+      <Outline selection={meshes} visibleEdgeColor={color} />
+    </EffectComposer>
+  );
+};
+```
+
+### 5. Common Pitfalls to Avoid
+
+- **Forgetting to Clean Up**: Always include a cleanup function in your useEffect
+- **Incomplete Cleanup**: Make sure to clean up all resources you create
+- **Missing Dependencies**: Include all dependencies in the useEffect dependency array
+- **State Persistence**: Don't leave any state changes that should be temporary
+- **Memory Leaks**: Clear all refs and cancel all animations
+
 ## Example: Creating a Simple Color Effect
 
 Let's create a simple effect that changes the color of all meshes in the model. This example follows the same pattern as the `OverlayEffect`:

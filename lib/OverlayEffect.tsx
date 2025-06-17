@@ -37,23 +37,18 @@ export const OverlayEffect: FC<OverlayEffectProps> = ({
     clonesRef.current = clones;
 
     return () => {
+      // Clean up all clones and their materials
       clones.forEach((c) => {
-        c.parent?.remove(c);
-        (c.material as MeshStandardMaterial).dispose();
+        if (c.parent) {
+          c.parent.remove(c);
+        }
+        if (c.material) {
+          (c.material as MeshStandardMaterial).dispose();
+        }
       });
       clonesRef.current = [];
     };
-  }, [meshes]);
-
-  // react to prop changes
-  useEffect(() => {
-    clonesRef.current.forEach((c) => {
-      const mat = c.material as MeshStandardMaterial;
-      mat.color.set(color);
-      mat.opacity = opacity;
-      mat.needsUpdate = true;
-    });
-  }, [color, opacity]);
+  }, [meshes, color, opacity]);
 
   return null;
 };

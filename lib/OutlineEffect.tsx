@@ -17,6 +17,7 @@ export const OutlineEffect: FC<OutlineEffectProps> = ({
   blur = false,
 }) => {
   const { meshes } = useEffectData();
+
   if (!meshes.length) return null;
 
   return (
